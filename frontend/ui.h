@@ -372,7 +372,7 @@ struct Menu
             y += lineH;
         }
         {
-            const int hs = Canvas::FitScale(hint, scale, std::max(boxW, 80 * scale));
+            const int hs = Canvas::FitScale(hint, scale, std::max(boxW - 12 * scale, 80 * scale));
             c.Text((c.w - Canvas::TextWidth(hint, hs)) / 2, y + 4 * scale + (scale - hs) * 3, hint, hs, hintCol);
         }
         if (!noteLines.empty())
