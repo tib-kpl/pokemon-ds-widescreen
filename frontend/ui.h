@@ -126,6 +126,14 @@ struct Canvas
     // here and in Text, whoever draws it.
     static int TextWidth(const std::string& s, int scale) { return (int)i18n::Tr(s).size() * 6 * scale; }
 
+    // The largest scale, at most `scale` and at least 1, at which the text is no wider than maxW:
+    // a translation is often longer than the English it replaces (the hints at the foot of a page).
+    static int FitScale(const std::string& s, int scale, int maxW)
+    {
+        while (scale > 1 && TextWidth(s, scale) > maxW) scale--;
+        return scale;
+    }
+
     void Text(int x, int y, const std::string& text, int scale, uint32_t argb)
     {
         for (char c : i18n::Tr(text))
@@ -286,6 +294,19 @@ struct Menu
         const int rows = shown + (hasTitle ? 3 : 2);
         if (lineH * rows + 6 * scale > c.h - 4) lineH = std::max(9 * scale, (c.h - 4 - 6 * scale) / rows);
         int boxW = 190 * scale;
+        // Wide enough for the longest row (a translation's name and value side by side) and title.
+        {
+            int need = hasTitle ? Canvas::TextWidth(title, scale) + 12 * scale : 0;
+            for (const MenuItem& it : items)
+            {
+                int w = 12 * scale + Canvas::TextWidth(it.label, scale);
+                if (!it.value.empty())
+                    w += 12 * scale + (it.slider >= 0 ? Canvas::TextWidth("< 100% >", scale) + 54 * scale
+                                                      : Canvas::TextWidth(it.info ? it.value : "< " + it.value + " >", scale));
+                need = std::max(need, w);
+            }
+            boxW = std::max(boxW, need);
+        }
         if (boxW > c.w - 8) boxW = c.w - 8;
         int boxH = lineH * rows + 6 * scale;
         // The note's lines (up to 4, the last cut short), and the box moved up to make room.
@@ -350,7 +371,10 @@ struct Menu
             }
             y += lineH;
         }
-        c.Text(bx + (boxW - Canvas::TextWidth(hint, scale)) / 2, y + 4 * scale, hint, scale, hintCol);
+        {
+            const int hs = Canvas::FitScale(hint, scale, c.w - 8);
+            c.Text((c.w - Canvas::TextWidth(hint, hs)) / 2, y + 4 * scale + (scale - hs) * 3, hint, hs, hintCol);
+        }
         if (!noteLines.empty())
         {
             const int ny = by + boxH + 3 * scale;

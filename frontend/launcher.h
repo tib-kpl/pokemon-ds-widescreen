@@ -758,7 +758,8 @@ inline void Draw(Canvas& c, const std::vector<Game>& games, int tab, int selecte
     // of their underlines, and the cut tiles at the top say it already.)
     if (scroll + (bottom - top) < v.height - grid.gap) c.Fill(c.w / 2 - 8 * s, bottom - 2 * s, 16 * s, s, th.hint);
     const std::string hint = !note.empty() ? note : !hintText.empty() ? hintText : "A: PLAY    Y: SETTINGS    L / R: TABS    +: QUIT";
-    c.Text((c.w - Canvas::TextWidth(hint, s)) / 2, c.h - 12 * s, hint, s, th.hint);
+    const int hs = Canvas::FitScale(hint, s, c.w - 8 * s);
+    c.Text((c.w - Canvas::TextWidth(hint, hs)) / 2, c.h - 12 * s + (s - hs) * 3, hint, hs, th.hint);
 }
 
 // The settings page (Y on the Switch's list, H or a controller's Y on a PC's): the pause menu's
@@ -1188,7 +1189,8 @@ struct SettingsPage
         }
         if (scroll > 0) c.Fill(c.w / 2 - 8 * s, top - 4 * s, 16 * s, s, th.hint);
         if (scroll + fit < (int)out.size()) c.Fill(c.w / 2 - 8 * s, bottom + s, 16 * s, s, th.hint);
-        c.Text((c.w - Canvas::TextWidth(hint, s)) / 2, c.h - 12 * s, hint, s, th.hint);
+        const int hs = Canvas::FitScale(hint, s, c.w - 8 * s);
+        c.Text((c.w - Canvas::TextWidth(hint, hs)) / 2, c.h - 12 * s + (s - hs) * 3, hint, hs, th.hint);
     }
 };
 

@@ -6817,6 +6817,7 @@ int main(int argc, char** argv)
         if (frame < toastUntil)
         {
             int sc = outH / 240 < 1 ? 1 : outH / 240;
+            sc = Canvas::FitScale(toast, sc, outW - 8 * sc); // (a translation can be long)
             const int tw = Canvas::TextWidth(toast, sc) + 8 * sc;
             // With on-screen controls, centred below their top row (L, MENU and R end at
             // 12% of the height) instead of under the L button.
