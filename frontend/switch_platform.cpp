@@ -181,9 +181,9 @@ std::string InstallHomeIcons(const std::vector<Launcher::Game>& games)
     std::string error;
     const int made = SwitchForwarder::Install(g_self, entries, error);
     fprintf(stderr, "[switch] HOME Menu icons: %d of %d%s%s\n", made, (int)entries.size(), error.empty() ? "" : ", ", error.c_str());
-    if (made == (int)entries.size()) return std::to_string(made) + " ON THE HOME MENU";
-    if (made > 0) return std::to_string(made) + " OF " + std::to_string(entries.size()) + " (" + error + ")";
-    return "FAILED: " + error;
+    if (made == (int)entries.size()) return i18n::Fmt("{0} ON THE HOME MENU", { std::to_string(made) });
+    if (made > 0) return i18n::Fmt("{0} OF {1} ({2})", { std::to_string(made), std::to_string(entries.size()), error });
+    return i18n::Fmt("FAILED: {0}", { error });
 }
 #endif
 
@@ -221,6 +221,7 @@ int PickGame(const std::vector<Launcher::Game>& games, int selected, const std::
     // buttons by their labels, as main.cpp reads them on the Switch (Controls::IN_*).
     Controls::Bindings ctl;
     ctl.Load(cfgPath);
+    i18n::Set(Launcher::ConfigValue(cfgPath, "language"));
     auto mask = [](int in) -> u64 {
         static const u64 m[Controls::IN_COUNT] = { HidNpadButton_A, HidNpadButton_B, HidNpadButton_X, HidNpadButton_Y,
             HidNpadButton_Minus, 0, HidNpadButton_Plus, HidNpadButton_StickL, HidNpadButton_StickR, HidNpadButton_L,
@@ -437,7 +438,7 @@ int PickGame(const std::vector<Launcher::Game>& games, int selected, const std::
                     result = selected;
                     break;
                 }
-                note = games[selected].comingSoon ? games[selected].name + ": COMING SOON"
+                note = games[selected].comingSoon ? i18n::Fmt("{0}: COMING SOON", { games[selected].name })
                      : games[selected].known ? "THIS DOWNLOAD DOES NOT HAVE THIS GAME" : "THIS GAME IS NOT ONE THAT THIS PLAYS";
             }
             if (down & (HidNpadButton_Plus | (ctl.PadCustom() ? action(Controls::B) : (u64)HidNpadButton_B))) break;

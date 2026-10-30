@@ -1331,6 +1331,7 @@ struct Settings
     // VOLUME: the game's sound and music, 0 (off) to 100 in tens.
     int volume = 100;
     std::string listColour, listBackground; // (GAME LIST: COLOUR, BACKGROUND)
+    std::string language; // (LANGUAGE: "", "en", "fr"..., the files in lang/; "" follows the device)
     bool cpuBoost = true; // Switch only: the processor's boost mode (see SwitchPlatform)
     bool jit = true;      // Switch, games that are not recompiled: melonDS's JIT (read at start-up)
     bool fastMem = true;  // ... and its fast memory (also read at start-up)
@@ -1404,6 +1405,7 @@ struct Settings
             // pause menu's colour too.)
             else if (k == "list_colour") { listColour = v; Menu::Accent = AccentNamed(v); }
             else if (k == "list_background") listBackground = v;
+            else if (k == "language") { language = v; i18n::Set(v); }
             else if (k == "ff_low_res") ffLowRes = v == "1";
             else if (k == "start_button") startMenu = v != "ds";
             else if (k == "cpu_boost") cpuBoost = v == "1";
@@ -1454,6 +1456,7 @@ struct Settings
         f << "volume=" << volume << "\n";
         if (!listColour.empty()) f << "list_colour=" << listColour << "\n";
         if (!listBackground.empty()) f << "list_background=" << listBackground << "\n";
+        if (!language.empty()) f << "language=" << language << "\n";
         f << "start_button=" << (startMenu ? "menu" : "ds") << "\n";
         f << "battle_buttons=" << (battleButtons == 0 ? "corner" : battleButtons == 2 ? "panel" : "strip") << "\n";
         controls.Save(f);
@@ -4058,7 +4061,7 @@ int main(int argc, char** argv)
             add(M_SOUND, "SOUND", "");
             add(M_GRAPHICS, "GRAPHICS", "");
             add(M_CONTROLMENU, "CONTROLS", "");
-            add(M_CHEATS, "CHEATS", cheats.On() ? std::to_string(cheats.On()) + " ON" : "");
+            add(M_CHEATS, "CHEATS", cheats.On() ? i18n::Fmt("{0} ON", { std::to_string(cheats.On()) }) : "");
             if (exclusives.Supported()) add(M_BOTHVER, "OTHER VERSION POKEMON", onOff(exclusives.on));
             if (Achievements::Available()) add(M_RA, "RETROACHIEVEMENTS", onOff(cfg.ra.on));
             add(M_RESET, "RESET GAME", "");
@@ -4095,7 +4098,7 @@ int main(int argc, char** argv)
             add(M_WIDE, "WIDESCREEN WORLD", onOff(cfg.wide));
             // (Black, White, Black 2 and White 2. The game sets its memory up for it as it
             // starts, so a change waits for the next start.)
-            add(M_WIDEMAP, "WIDE MAP LOADING", !bw2map.Supported() ? "-" : onOff(cfg.wideMap) + (cfg.wideMap != bw2map.on ? " (NEXT START)" : ""));
+            add(M_WIDEMAP, "WIDE MAP LOADING", !bw2map.Supported() ? "-" : (cfg.wideMap != bw2map.on ? i18n::Fmt("{0} (NEXT START)", { onOff(cfg.wideMap) }) : onOff(cfg.wideMap)));
 #ifdef __SWITCH__
             add(M_WIDELINES, "WORLD DETAIL", std::to_string(detailLines[detailIndex()]));
             // ON: fewer lines than WORLD DETAIL for a moment where drawing them cannot keep up
@@ -4130,8 +4133,8 @@ int main(int argc, char** argv)
 #if SSR_MENU_EMULATION
             // Read when the game starts (SwitchPlatform::Start); a change waits for the next start.
             // FAST JIT: the JIT with fast memory.
-            add(M_EMULATION, "EMULATION", std::string(!cfg.jit ? "INTERPRETER" : cfg.fastMem ? "FAST JIT" : "JIT")
-                + (cfg.jit != UseJit || (cfg.jit && cfg.fastMem != UseFastMem) ? " (NEXT START)" : ""));
+            add(M_EMULATION, "EMULATION", i18n::Fmt((cfg.jit != UseJit || (cfg.jit && cfg.fastMem != UseFastMem)) ? "{0} (NEXT START)" : "{0}",
+                { std::string(!cfg.jit ? "INTERPRETER" : cfg.fastMem ? "FAST JIT" : "JIT") }));
 #endif
             add(M_BACK, "BACK", "");
         }
@@ -4148,7 +4151,7 @@ int main(int argc, char** argv)
             if (achList.empty()) add(M_NOTHING, "NONE LOADED", "", true);
             for (size_t i = 0; i < achList.size(); i++)
                 add(M_ACH0 + (int)i, Cheats::Shown(achList[i].title, 22).c_str(),
-                    achList[i].unlocked ? "DONE" : std::to_string(achList[i].points) + " PTS", true);
+                    achList[i].unlocked ? "DONE" : i18n::Fmt("{0} PTS", { std::to_string(achList[i].points) }), true);
             add(M_BACK, "BACK", "");
         }
         else if (menuPage == PAGE_RA_DETAIL && achDetail >= 0 && achDetail < (int)achList.size())
@@ -4156,7 +4159,7 @@ int main(int argc, char** argv)
             // One achievement's details: the title is the box's, the description under it.
             const Achievements::Row& r = achList[achDetail];
             add(M_ACH_POINTS, "POINTS", std::to_string(r.points), true);
-            std::string status = r.unlocked ? "UNLOCKED" : r.progress.empty() ? "NOT YET" : "SO FAR " + r.progress;
+            std::string status = r.unlocked ? "UNLOCKED" : r.progress.empty() ? "NOT YET" : i18n::Fmt("SO FAR {0}", { r.progress });
             if (r.unlocked && r.unlockTime > 0)
             {
                 const time_t t = (time_t)r.unlockTime;
@@ -4181,7 +4184,7 @@ int main(int argc, char** argv)
             {
                 // (The password as a count: the menus' font has no small letters, and it is not shown.)
                 add(M_RA_TYPED, raTyping == 1 ? "USER NAME" : "PASSWORD",
-                    raTyping == 1 ? (raTyped.empty() ? std::string("...") : Cheats::Shown(raTyped, 18)) : std::to_string(raTyped.size()) + " CHARACTERS", true);
+                    raTyping == 1 ? (raTyped.empty() ? std::string("...") : Cheats::Shown(raTyped, 18)) : i18n::Fmt("{0} CHARACTERS", { std::to_string(raTyped.size()) }), true);
                 add(M_RA_CANCEL, "CANCEL", "");
             }
             else
@@ -6773,9 +6776,9 @@ int main(int argc, char** argv)
             if (!UpdateCheck::g_newer.empty())
             {
 #ifdef SSR_PC_LAUNCHER
-                say("VERSION " + UpdateCheck::g_newer + " IS OUT - DOWNLOAD THE APK FROM GITHUB");
+                say(i18n::Fmt("VERSION {0} IS OUT - DOWNLOAD THE APK FROM GITHUB", { UpdateCheck::g_newer }));
 #else
-                say("VERSION " + UpdateCheck::g_newer + " IS OUT - REBUILD THE APP ON YOUR PC");
+                say(i18n::Fmt("VERSION {0} IS OUT - REBUILD THE APP ON YOUR PC", { UpdateCheck::g_newer }));
 #endif
                 toastUntil = frame + 600;
             }
@@ -6834,12 +6837,12 @@ int main(int argc, char** argv)
                                     Controls::StyleOf(pads.controllers.empty() ? nullptr : pads.controllers[0])));
             };
             std::string hint = touchPadUsed && touchPad.visible ? "TAP: CHOOSE   OUTSIDE: BACK"
-                               : btn(Controls::A) + ": SELECT   " + btn(Controls::B) + ": BACK";
+                               : i18n::Fmt("{0}: SELECT   {1}: BACK", { btn(Controls::A), btn(Controls::B) });
             const int selId = menu.selected >= 0 && menu.selected < (int)menuIds.size() ? menuIds[menu.selected] : -1;
             static const char* pageTitle[] = { "", "KEYS AND BUTTONS", "DISPLAY", "GRAPHICS", "CONTROLS", "CHEATS", "RETROACHIEVEMENTS", "SOUND", "ACHIEVEMENTS", "ACHIEVEMENT" };
             if (menuPage == PAGE_KEYS)
             {
-                if (!(touchPadUsed && touchPad.visible)) hint = btn(Controls::A) + ": CHANGE   " + btn(Controls::B) + ": BACK";
+                if (!(touchPadUsed && touchPad.visible)) hint = i18n::Fmt("{0}: CHANGE   {1}: BACK", { btn(Controls::A), btn(Controls::B) });
                 if (capturing >= 0) hint = ctlKeyboard ? "ESC: LEAVE IT AS IT WAS" : "OR WAIT 5 SECONDS: AS IT WAS";
                 else if (menu.selected == 0 && ctlHasKeyboard) hint = "CHANGE: KEYBOARD OR CONTROLLER";
                 else if (menu.selected == ctlRow0 + Controls::SWAP) hint = "SWAPS WHICH SCREEN IS LARGE";
@@ -6872,7 +6875,7 @@ int main(int argc, char** argv)
             if (selId == M_RA_LOGIN) hint = Achievements::LoggedIn() ? "FORGETS THE ACCOUNT HERE" : "YOUR USER NAME AND PASSWORD";
             if (selId == M_RA_TYPED)
                 hint = touchPadUsed ? "THEN TAP HERE OR DONE" : ctlHasKeyboard ? "ENTER: NEXT   ESC: CANCEL" : "TYPE IT  THEN A";
-            if (selId >= M_CHEAT0 && selId < M_ACH0 && !(touchPadUsed && touchPad.visible)) hint = btn(Controls::A) + ": ON / OFF   " + btn(Controls::B) + ": BACK";
+            if (selId >= M_CHEAT0 && selId < M_ACH0 && !(touchPadUsed && touchPad.visible)) hint = i18n::Fmt("{0}: ON / OFF   {1}: BACK", { btn(Controls::A), btn(Controls::B) });
             if (selId == M_RA_LIST) hint = "WHAT EACH ASKS FOR";
             std::string note = selId >= M_CHEAT0 && selId < M_ACH0 && selId - M_CHEAT0 < (int)cheats.items.size() ? cheats.items[selId - M_CHEAT0].note : std::string();
             std::string title = pageTitle[menuPage];
@@ -6883,16 +6886,16 @@ int main(int argc, char** argv)
                 const std::string full = Cheats::Shown(achList[achDetail].title, 200);
                 title = full.size() > 30 ? full.substr(0, 28) + ".." : full;
                 note = (full.size() > 30 ? full + ": " : std::string()) + achList[achDetail].description;
-                hint = (touchPadUsed && touchPad.visible) ? "TAP OUTSIDE: BACK" : btn(Controls::B) + ": BACK";
+                hint = (touchPadUsed && touchPad.visible) ? "TAP OUTSIDE: BACK" : i18n::Fmt("{0}: BACK", { btn(Controls::B) });
             }
             if (menuPage == PAGE_RA_LIST)
             {
-                hint = (touchPadUsed && touchPad.visible) ? "TAP: DETAILS" : btn(Controls::A) + ": DETAILS   " + btn(Controls::B) + ": BACK";
+                hint = (touchPadUsed && touchPad.visible) ? "TAP: DETAILS" : i18n::Fmt("{0}: DETAILS   {1}: BACK", { btn(Controls::A), btn(Controls::B) });
                 if (selId >= M_ACH0 && selId - M_ACH0 < (int)achList.size())
                 {
                     const Achievements::Row& r = achList[selId - M_ACH0];
-                    note = r.description + " (" + std::to_string(r.points) + " POINTS" + (r.unlocked ? ", UNLOCKED)" : ")");
-                    if (!r.unlocked && !r.progress.empty()) note += " SO FAR: " + r.progress;
+                    note = i18n::Fmt(r.unlocked ? "{0} ({1} POINTS, UNLOCKED)" : "{0} ({1} POINTS)", { r.description, std::to_string(r.points) });
+                    if (!r.unlocked && !r.progress.empty()) note += " " + i18n::Fmt("SO FAR: {0}", { r.progress });
                 }
             }
             menu.Draw(canvas, title, hint, note);

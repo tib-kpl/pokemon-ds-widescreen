@@ -480,6 +480,7 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
     // keep doing what they always did here.
     Controls::Bindings ctl;
     ctl.Load(fo.cfg);
+    i18n::Set(Launcher::ConfigValue(fo.cfg, "language"));
     float trig[2] = {}; // (the triggers as last seen: one pushed past half way is a press)
     // The title band's SETTINGS (and BACK on the settings page) can be chosen like a game: up
     // from the top row (the first option), then A.
@@ -577,7 +578,7 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
         raMenu.items.clear();
         std::string u = raUser.size() > 18 ? raUser.substr(0, 18) : raUser;
         raMenu.items.push_back({ "USER NAME", (u.empty() ? std::string("...") : u) + (raField == 0 ? "_" : ""), true });
-        raMenu.items.push_back({ "PASSWORD", std::to_string(raPass.size()) + " CHARACTERS" + (raField == 1 ? "_" : ""), true });
+        raMenu.items.push_back({ "PASSWORD", i18n::Fmt("{0} CHARACTERS", { std::to_string(raPass.size()) }) + (raField == 1 ? "_" : ""), true });
         raMenu.items.push_back({ raState->busy ? "LOGGING IN..." : "LOG IN", "" });
         raMenu.items.push_back({ "CANCEL", "" });
         if (!raState->busy) raMenu.selected = std::min(raMenu.selected, 3);
@@ -691,7 +692,7 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
             std::string where;
             const int made = Shortcuts::Make(fo.dir, games, where);
             page.items[page.selected].values[0].second =
-                games.empty() ? "NO GAMES YET" : made > 0 ? std::to_string(made) + " MADE " + where : "FAILED: " + where;
+                games.empty() ? "NO GAMES YET" : made > 0 ? i18n::Fmt("{0} MADE {1}", { std::to_string(made), where }) : i18n::Fmt("FAILED: {0}", { where });
             return;
         }
 #endif
@@ -745,7 +746,7 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
             quit = true;
         }
         else
-            note = games[selected].comingSoon ? games[selected].name + ": COMING SOON"
+            note = games[selected].comingSoon ? i18n::Fmt("{0}: COMING SOON", { games[selected].name })
                  : games[selected].known ? "THIS DOWNLOAD DOES NOT HAVE THIS GAME" : "THIS GAME IS NOT ONE THAT THIS PLAYS";
     };
     auto move = [&](int dir) { // 1 left, 2 right, 3 up, 4 down
@@ -1269,23 +1270,23 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
         };
 #ifdef SSR_IOS
         const std::string hint = games.empty() ? std::string("FOLDER: YOUR ROMS FOLDER IN THE FILES APP")
-                               : padIn ? "TAP A GAME TWICE OR PRESS " + btn(Controls::A) + " TO PLAY    " + btn(Controls::Y) + ": SETTINGS"
+                               : padIn ? i18n::Fmt("TAP A GAME TWICE OR PRESS {0} TO PLAY    {1}: SETTINGS", { btn(Controls::A), btn(Controls::Y) })
                                        : std::string("TAP A GAME TWICE TO PLAY    SETTINGS: AT THE TOP");
-        const std::string pageHint = padIn ? "UP / DOWN: CHOOSE    " + btn(Controls::A) + ": CHANGE    " + btn(Controls::B) + ": BACK"
+        const std::string pageHint = padIn ? i18n::Fmt("UP / DOWN: CHOOSE    {0}: CHANGE    {1}: BACK", { btn(Controls::A), btn(Controls::B) })
                                            : std::string("TAP AN OPTION THEN TAP AGAIN TO CHANGE    DRAG TO SCROLL");
 #elif defined(__ANDROID__)
-        const std::string hint = games.empty() ? "TAP OR PRESS " + (padIn ? btn(Controls::A) : std::string("A")) + " TO CHOOSE YOUR ROMS FOLDER    BACK: QUIT"
-                               : padIn ? "TAP A GAME TWICE OR PRESS " + btn(Controls::A) + " TO PLAY    " + btn(Controls::L) + " / " + btn(Controls::R) + ": TABS    BACK: QUIT"
+        const std::string hint = games.empty() ? i18n::Fmt("TAP OR PRESS {0} TO CHOOSE YOUR ROMS FOLDER    BACK: QUIT", { padIn ? btn(Controls::A) : std::string("A") })
+                               : padIn ? i18n::Fmt("TAP A GAME TWICE OR PRESS {0} TO PLAY    {1} / {2}: TABS    BACK: QUIT", { btn(Controls::A), btn(Controls::L), btn(Controls::R) })
                                        : std::string("TAP A GAME TWICE TO PLAY    SETTINGS: AT THE TOP    BACK: QUIT");
-        const std::string pageHint = padIn ? "UP / DOWN: CHOOSE    " + btn(Controls::A) + ": CHANGE    " + btn(Controls::B) + ": BACK"
+        const std::string pageHint = padIn ? i18n::Fmt("UP / DOWN: CHOOSE    {0}: CHANGE    {1}: BACK", { btn(Controls::A), btn(Controls::B) })
                                            : std::string("TAP AN OPTION THEN TAP AGAIN TO CHANGE    DRAG TO SCROLL    BACK: DONE");
 #else
         const std::string hint = games.empty() ? std::string("O: OPEN THE ROMS FOLDER    H: SETTINGS    ESC: QUIT")
-                               : padIn ? btn(Controls::A) + ": PLAY    " + btn(Controls::L) + " / " + btn(Controls::R) + ": TABS    " + btn(Controls::Y) + ": SETTINGS    " + btn(Controls::B) + ": QUIT"
+                               : padIn ? i18n::Fmt("{0}: PLAY    {1} / {2}: TABS    {3}: SETTINGS    {4}: QUIT", { btn(Controls::A), btn(Controls::L), btn(Controls::R), btn(Controls::Y), btn(Controls::B) })
                                        : std::string("ENTER: PLAY    Q / E: TABS    H: SETTINGS    O: ROMS    ESC: QUIT");
-        const std::string pageHint = page.group < 0 ? (padIn ? "UP / DOWN: CHOOSE    " + btn(Controls::A) + ": OPEN    " + btn(Controls::B) + ": BACK"
+        const std::string pageHint = page.group < 0 ? (padIn ? i18n::Fmt("UP / DOWN: CHOOSE    {0}: OPEN    {1}: BACK", { btn(Controls::A), btn(Controls::B) })
                                                              : std::string("UP / DOWN: CHOOSE    ENTER: OPEN    ESC: BACK"))
-                                   : padIn ? "UP / DOWN: CHOOSE    LEFT / RIGHT / " + btn(Controls::A) + ": CHANGE    " + btn(Controls::B) + ": BACK"
+                                   : padIn ? i18n::Fmt("UP / DOWN: CHOOSE    LEFT / RIGHT / {0}: CHANGE    {1}: BACK", { btn(Controls::A), btn(Controls::B) })
                                            : std::string("UP / DOWN: CHOOSE    LEFT / RIGHT / ENTER: CHANGE    ESC: BACK");
 #endif
         if (guide)
@@ -1301,7 +1302,7 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
             if (keysOpen)
             {
                 std::string kh = keysCapture >= 0 ? (keysKeyboard ? "ESC: LEAVE IT AS IT WAS" : "OR WAIT 5 SECONDS: AS IT WAS")
-                               : padIn ? btn(Controls::A) + ": CHANGE   " + btn(Controls::B) + ": BACK" : std::string("ENTER: CHANGE   ESC: BACK");
+                               : padIn ? i18n::Fmt("{0}: CHANGE   {1}: BACK", { btn(Controls::A), btn(Controls::B) }) : std::string("ENTER: CHANGE   ESC: BACK");
                 if (keysCapture < 0 && keysMenu.selected == 0) kh = "CHANGE: KEYBOARD OR CONTROLLER";
                 keysMenu.Draw(canvas, "KEYS AND BUTTONS", kh);
             }

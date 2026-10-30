@@ -48,6 +48,7 @@ Targets: Linux and Windows first, Android second. macOS is community-maintained.
 | `frontend/merged.h`, `layout.h` | choosing and composing the single-screen view |
 | `frontend/battlewide.h` | the widescreen battle view (continues backgrounds and moves sprites beside the screen) |
 | `frontend/gpucompose.h` | the same picture as `MergedCompose` in `merged.h`, drawn by the GPU (headless tests use the CPU one; keep both in step) |
+| `frontend/i18n.h`, `lang/*.json`, `tools/i18n_check.py` | translations of the menus: `lang/en.json` lists every text with an id, `lang/xx.json` has the same ids translated; the code keeps the English wording (found in `en.json`) and `Canvas::Text` / `TextWidth` translate it; embedded by CMake; chosen by the `language` setting; run the check after changing a menu text |
 | `frontend/ui.h`, `touchpad.h` | pause menu, touch cursor and messages; on-screen controls for Android |
 | `frontend/platform.cpp`, `host.h` | melonDS's Platform interface (files, saves, threads) |
 | `melonDS/` | melonDS 1.1 with this project's changes (dispatch into recompiled code, per-pixel layer flags, `GPU3D_Wide.cpp`, palette and blend snapshots for the widescreen view) |

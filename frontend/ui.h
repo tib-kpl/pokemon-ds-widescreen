@@ -7,6 +7,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include "i18n.h"
 
 struct Canvas
 {
@@ -109,6 +110,9 @@ struct Canvas
             { 0x00, 0x1F, 0x11, 0x11, 0x11, 0x1F, 0x00 },
             { 0x00, 0x04, 0x0A, 0x0A, 0x11, 0x1F, 0x00 },
             { 0x18, 0x19, 0x02, 0x04, 0x08, 0x13, 0x03 }, // % (VOLUME)
+            { 0x04, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00 }, // ' (translations)
+            { 0x00, 0x00, 0x00, 0x00, 0x06, 0x04, 0x08 }, // ,
+            { 0x0E, 0x11, 0x01, 0x02, 0x04, 0x00, 0x04 }, // ?
         };
         if (c >= 'a' && c <= 'z') c -= 32;
         if (c >= 'A' && c <= 'Z') return font[c - 'A'];
@@ -118,19 +122,43 @@ struct Canvas
         return p ? font[36 + (p - punct)] : nullptr;
     }
 
-    static int TextWidth(const std::string& s, int scale) { return (int)s.size() * 6 * scale; }
+    // The width of s as drawn: in the chosen language (i18n.h), so every text is translated
+    // here and in Text, whoever draws it.
+    static int TextWidth(const std::string& s, int scale) { return (int)i18n::Tr(s).size() * 6 * scale; }
 
-    void Text(int x, int y, const std::string& s, int scale, uint32_t argb)
+    void Text(int x, int y, const std::string& text, int scale, uint32_t argb)
     {
-        for (char c : s)
+        for (char c : i18n::Tr(text))
         {
-            // \x05: E with an acute accent (the É of POKÉMON): a whole E, the accent above the
-            // line, two pixels slanting up to the right with a row's gap.
-            if (c == '\x05')
+            // Accented capitals (i18n.h, the codes  and up): the whole letter, and the accent
+            // above the line (or the cedilla below it) in a few pixels with a row's gap, as the
+            // É of POKÉMON.
+            char accent = 0;
+            switch (c)
             {
-                Fill(x + 3 * scale, y - 3 * scale, scale, scale, argb);
-                Fill(x + 2 * scale, y - 2 * scale, scale, scale, argb);
-                c = 'E';
+            case i18n::ACUTE_E: c = 'E'; accent = '/'; break;
+            case i18n::GRAVE_E: c = 'E'; accent = '`'; break;
+            case i18n::CIRC_E: c = 'E'; accent = '^'; break;
+            case i18n::DIAER_E: c = 'E'; accent = '"'; break;
+            case i18n::GRAVE_A: c = 'A'; accent = '`'; break;
+            case i18n::CIRC_A: c = 'A'; accent = '^'; break;
+            case i18n::CEDILLA_C: c = 'C'; accent = ','; break;
+            case i18n::CIRC_I: c = 'I'; accent = '^'; break;
+            case i18n::DIAER_I: c = 'I'; accent = '"'; break;
+            case i18n::CIRC_O: c = 'O'; accent = '^'; break;
+            case i18n::GRAVE_U: c = 'U'; accent = '`'; break;
+            case i18n::CIRC_U: c = 'U'; accent = '^'; break;
+            case i18n::DIAER_U: c = 'U'; accent = '"'; break;
+            default: break;
+            }
+            switch (accent)
+            {
+            case '/': Fill(x + 3 * scale, y - 3 * scale, scale, scale, argb); Fill(x + 2 * scale, y - 2 * scale, scale, scale, argb); break;
+            case '`': Fill(x + 1 * scale, y - 3 * scale, scale, scale, argb); Fill(x + 2 * scale, y - 2 * scale, scale, scale, argb); break;
+            case '^': Fill(x + 2 * scale, y - 3 * scale, scale, scale, argb); Fill(x + 1 * scale, y - 2 * scale, scale, scale, argb); Fill(x + 3 * scale, y - 2 * scale, scale, scale, argb); break;
+            case '"': Fill(x + 1 * scale, y - 2 * scale, scale, scale, argb); Fill(x + 3 * scale, y - 2 * scale, scale, scale, argb); break;
+            case ',': Fill(x + 2 * scale, y + 7 * scale, scale, scale, argb); Fill(x + 1 * scale, y + 8 * scale, scale, scale, argb); break;
+            default: break;
             }
             if (const uint8_t* g = Glyph(c))
                 for (int row = 0; row < 7; row++)

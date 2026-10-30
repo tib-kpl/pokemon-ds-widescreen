@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- New LANGUAGE setting (DISPLAY, in the settings and with the device's language as AUTO): the menus, the game list and the pause menu can be shown in French. The texts are in JSON files in `lang/` (`en.json` lists them with an id, `fr.json` is the French), built into the program, so adding a language is a new file; `tools/i18n_check.py` lists what is missing.
+
 - French Black, White, Black 2 and White 2: recognise rain, snow and sandstorm effects so their particles can extend to the edges of the widescreen view.
 
 - README: highlight this fork's French ROM support in an English information callout, credit upstream and link to its Android releases.

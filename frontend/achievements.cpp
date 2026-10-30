@@ -1,5 +1,6 @@
 // RetroAchievements: see achievements.h.
 #include "achievements.h"
+#include "i18n.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -156,7 +157,7 @@ void RC_CCONV Event(const rc_client_event_t* e, rc_client_t*)
     {
     case RC_CLIENT_EVENT_ACHIEVEMENT_TRIGGERED:
         if (e->achievement)
-            Say("ACHIEVEMENT: " + Shown(e->achievement->title, 40) + " (" + std::to_string(e->achievement->points) + ")");
+            Say(i18n::Fmt("ACHIEVEMENT: {0} ({1})", { Shown(e->achievement->title, 40), std::to_string(e->achievement->points) }));
         break;
     case RC_CLIENT_EVENT_GAME_COMPLETED:
         Say("EVERY ACHIEVEMENT UNLOCKED!");
@@ -195,7 +196,7 @@ void UpdateGameLine()
     rc_client_user_game_summary_t s;
     rc_client_get_user_game_summary(g_client, &s);
     g_gameLine = s.num_core_achievements == 0 ? "NONE YET"
-               : std::to_string(s.num_unlocked_achievements) + " OF " + std::to_string(s.num_core_achievements) + " UNLOCKED";
+               : i18n::Fmt("{0} OF {1} UNLOCKED", { std::to_string(s.num_unlocked_achievements), std::to_string(s.num_core_achievements) });
 }
 
 void RC_CCONV GameLoaded(int result, const char* error, rc_client_t*, void*)
@@ -210,13 +211,13 @@ void RC_CCONV GameLoaded(int result, const char* error, rc_client_t*, void*)
         if (s.num_core_achievements == 0)
         {
             g_gameLine = "NONE YET";
-            Say("RETROACHIEVEMENTS: " + Shown(game ? game->title : "", 30) + ": NO ACHIEVEMENTS YET");
+            Say(i18n::Fmt("RETROACHIEVEMENTS: {0}: NO ACHIEVEMENTS YET", { Shown(game ? game->title : "", 30) }));
         }
         else
         {
             UpdateGameLine();
-            Say("RETROACHIEVEMENTS: " + std::to_string(s.num_unlocked_achievements) + " OF " +
-                std::to_string(s.num_core_achievements) + " UNLOCKED");
+            Say(i18n::Fmt("RETROACHIEVEMENTS: {0} OF {1} UNLOCKED",
+                { std::to_string(s.num_unlocked_achievements), std::to_string(s.num_core_achievements) }));
         }
         return;
     }

@@ -13,6 +13,7 @@
 #include <utility>
 #include <cmath>
 #include <vector>
+#include "i18n.h"
 #include <dirent.h>
 #include "ssr_os.h"
 #include <sys/stat.h>
@@ -684,7 +685,7 @@ inline void Draw(Canvas& c, const std::vector<Game>& games, int tab, int selecte
         const int y = top + h.y - scroll;
         if (h.empty)
         {
-            const std::string none = std::string("NO ") + PlatformName(h.platform) + " GAMES YET";
+            const std::string none = i18n::Fmt("NO {0} GAMES YET", { PlatformName(h.platform) });
             // (On its own tab: in the middle of the page.)
             if (tab != 0) c.Text((c.w - Canvas::TextWidth(none, s)) / 2, (top + bottom) / 2 - 4 * s, none, s, th.hint);
             else if (y >= top && y + 10 * s <= bottom) c.Text(grid.gx, y + 2 * s, none, s, th.hint);
@@ -826,6 +827,9 @@ inline std::vector<Setting> SettingsList()
 #endif
 #endif
     l.push_back({ "show_fps", "FPS COUNTER", onOff, "0", "SHOWS THE FRAMES A SECOND IN A CORNER." });
+    // (The translations are the files in lang/, i18n.h. One more language: its code and name here.)
+    l.push_back({ "language", "LANGUAGE", { { "en", "ENGLISH" }, { "fr", "FRANÇAIS" } }, "",
+                  "THE LANGUAGE OF THE MENUS AND THIS LIST. AUTO FOLLOWS YOUR DEVICE (ENGLISH WHEN THERE IS NO TRANSLATION FOR IT). THE GAMES KEEP THEIR OWN LANGUAGE." });
     l.push_back({ "volume", "VOLUME", { { "0", "OFF" }, { "10", "10%" }, { "20", "20%" }, { "30", "30%" }, { "40", "40%" }, { "50", "50%" }, { "60", "60%" }, { "70", "70%" }, { "80", "80%" }, { "90", "90%" }, { "100", "100%" } }, "100",
                   "THE GAME'S SOUND AND MUSIC. OFF FOR NONE. ALSO IN THE PAUSE MENU WHILE YOU PLAY." });
 #ifdef __SWITCH__
@@ -951,7 +955,7 @@ inline int GroupOf(const Setting& s)
     if (!s.key) return !strcmp(s.name, "KEYS AND BUTTONS") ? 3 : 7;
     if (!strncmp(s.key, "list_", 5)) return 5;
     if (!strcmp(s.key, "ra") || !strcmp(s.key, "!ra_login")) return 6;
-    static const char* display[] = { "view", "large_screen", "fullscreen", "smooth", "battle_buttons", "show_fps" };
+    static const char* display[] = { "view", "large_screen", "fullscreen", "smooth", "battle_buttons", "show_fps", "language" };
     static const char* controls[] = { "start_button", "buttons", "pad_touch" };
     for (const char* k : display)
         if (!strcmp(s.key, k)) return 0;
@@ -1004,6 +1008,7 @@ struct SettingsPage
             }
             fclose(f);
         }
+        i18n::Set(Stored("language"));
         if (keepChoice) return;
         ShowGroups(0);
     }
@@ -1115,6 +1120,7 @@ struct SettingsPage
             for (const std::string& l : lines) fprintf(f, "%s\n", l.c_str());
             fclose(f);
         }
+        if (!strcmp(s.key, "language")) i18n::Set(s.values[next].first);
         return s.key;
     }
 
@@ -1145,7 +1151,7 @@ struct SettingsPage
             }
             if (i == selected) selFirst = (int)out.size();
             out.push_back({ e.name, e.key ? Shown(e) : "", i, true });
-            for (const std::string& l : Wrap(e.text, width / (6 * ts) - 2)) out.push_back({ l, "", i, false });
+            for (const std::string& l : Wrap(i18n::Tr(e.text), width / (6 * ts) - 2)) out.push_back({ l, "", i, false });
             if (i == selected) selLast = (int)out.size() - 1;
             out.push_back({ "", "", -1, false });
         }

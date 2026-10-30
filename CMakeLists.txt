@@ -93,6 +93,21 @@ file(GLOB_RECURSE SSR_RCHEEVOS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/frontend/thi
 add_library(rcheevos STATIC ${SSR_RCHEEVOS_SOURCES})
 target_include_directories(rcheevos PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/frontend/thirdparty/rcheevos/include")
 
+# The menus' translations (frontend/i18n.h): every lang/*.json embedded in the program, so that
+# nothing has to be installed beside it (Android, Switch and PC alike). Written only when it
+# changes.
+file(GLOB SSR_LANG_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/lang/*.json")
+set(_lang_table "")
+foreach(_lang_file ${SSR_LANG_FILES})
+    get_filename_component(_lang_code "${_lang_file}" NAME_WE)
+    file(READ "${_lang_file}" _lang_text)
+    string(APPEND _lang_table "    { \"${_lang_code}\", R\"SSRLANG(${_lang_text})SSRLANG\" },\n")
+endforeach()
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lang")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lang/ssr_lang_data.h.new" "// Made by CMakeLists.txt from lang/*.json.\n${_lang_table}")
+configure_file("${CMAKE_CURRENT_BINARY_DIR}/lang/ssr_lang_data.h.new" "${CMAKE_CURRENT_BINARY_DIR}/lang/ssr_lang_data.h" COPYONLY)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/lang")
+
 set(SSRECOMP_SOURCES
     frontend/main.cpp
     frontend/achievements.cpp
