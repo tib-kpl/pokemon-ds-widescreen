@@ -117,7 +117,7 @@ struct Canvas
         if (c >= 'a' && c <= 'z') c -= 32;
         if (c >= 'A' && c <= 'Z') return font[c - 'A'];
         if (c >= '0' && c <= '9') return font[26 + c - '0'];
-        static const char punct[] = ":-+./<>!()\x01\x02\x03\x04%";
+        static const char punct[] = ":-+./<>!()\x01\x02\x03\x04%',?";
         const char* p = c ? strchr(punct, c) : nullptr;
         return p ? font[36 + (p - punct)] : nullptr;
     }
@@ -302,7 +302,7 @@ struct Menu
                 int w = 12 * scale + Canvas::TextWidth(it.label, scale);
                 if (!it.value.empty())
                     w += 12 * scale + (it.slider >= 0 ? Canvas::TextWidth("< 100% >", scale) + 54 * scale
-                                                      : Canvas::TextWidth(it.info ? it.value : "< " + it.value + " >", scale));
+                                                      : Canvas::TextWidth(it.info ? it.value : "< " + i18n::Tr(it.value) + " >", scale));
                 need = std::max(need, w);
             }
             boxW = std::max(boxW, need);
@@ -355,7 +355,7 @@ struct Menu
             c.Text(bx + 6 * scale, y, items[i].label, scale, col);
             if (!items[i].value.empty())
             {
-                std::string v = items[i].info ? items[i].value : "< " + items[i].value + " >";
+                std::string v = items[i].info ? items[i].value : "< " + i18n::Tr(items[i].value) + " >";
                 // (A slider's value right-aligned in room for its widest, "< 100% >", the bar left
                 // of it, so the bar stays put as the number changes.)
                 const int vx = bx + boxW - 6 * scale - Canvas::TextWidth(items[i].slider >= 0 ? "< 100% >" : v, scale);
@@ -372,7 +372,7 @@ struct Menu
             y += lineH;
         }
         {
-            const int hs = Canvas::FitScale(hint, scale, c.w - 8);
+            const int hs = Canvas::FitScale(hint, scale, std::max(boxW, 80 * scale));
             c.Text((c.w - Canvas::TextWidth(hint, hs)) / 2, y + 4 * scale + (scale - hs) * 3, hint, hs, hintCol);
         }
         if (!noteLines.empty())

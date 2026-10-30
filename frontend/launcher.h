@@ -1028,7 +1028,7 @@ struct SettingsPage
             const SettingsGroup& sg = SettingsGroups()[g];
             std::string names;
             for (const Setting& s : all)
-                if (GroupOf(s) == g) names += (names.empty() ? "" : " / ") + std::string(s.name);
+                if (GroupOf(s) == g) names += (names.empty() ? "" : " / ") + i18n::Tr(s.name);
             groupText[g] = names + ".";
             items.push_back({ sg.key, sg.name, { { "", ">" } }, "", groupText[g].c_str() });
         }
@@ -1134,7 +1134,7 @@ struct SettingsPage
         c.Fill(0, 0, c.w, c.h, th.bg);
         c.Fill(0, 0, c.w, 22 * s, th.band);
         c.Fill(0, 22 * s, c.w, th.bandLineH * s, th.bandLine);
-        const std::string title = group < 0 ? "SETTINGS" : std::string("SETTINGS: ") + SettingsGroups()[group].name;
+        const std::string title = group < 0 ? "SETTINGS" : i18n::Tr("SETTINGS: ") + i18n::Tr(SettingsGroups()[group].name);
         c.Text((c.w - Canvas::TextWidth(title, s + 1)) / 2, 6 * s, title, s + 1, th.title);
         const int width = std::min(c.w - 24 * s, 100 * 6 * ts);
         const int x = (c.w - width) / 2;
@@ -1180,7 +1180,7 @@ struct SettingsPage
                 if (!l.value.empty())
                 {
                     const bool group = !strncmp(items[l.item].key, "!group", 6);
-                const std::string v = sel && !group ? "< " + l.value + " >" : l.value;
+                const std::string v = sel && !group ? "< " + i18n::Tr(l.value) + " >" : l.value;
                     c.Text(x + width - Canvas::TextWidth(v, ts), y, v, ts, sel ? th.nameSel : th.name);
                 }
             }
