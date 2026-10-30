@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- French Black, White, Black 2 and White 2: recognise rain, snow and sandstorm effects so their particles can extend to the edges of the widescreen view.
+
 - README: highlight this fork's French ROM support in an English information callout, credit upstream and link to its Android releases.
 
 - French revision 0 ROMs of all seven existing games: regional function profiles,
