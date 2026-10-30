@@ -1,10 +1,20 @@
 # Pokémon DS Widescreen
 
-> **French ROM support (this fork):** French revision 0 versions of the seven existing games
-> are recognised, with regional display/control profiles and separate French saves.
-> Android releases are numbered and built automatically: [download the APK](../../releases/latest).
-> The app installs separately as **Pokemon DS FR**. See [French compatibility and testing](docs/FRENCH-ROMS.md)
-> and [Android releases](docs/ANDROID-RELEASES.md). No game files are included.
+## Infos
+
+Ce dépôt est un **fork de [mamesj/pokemon-ds-widescreen](https://github.com/mamesj/pokemon-ds-widescreen)**,
+consacré à l'ajout de la prise en charge des **ROMs françaises** des sept jeux déjà
+acceptés par le projet d'origine : Noir, Blanc, Noir 2, Blanc 2, HeartGold, SoulSilver
+et Platine (révision 0). Le projet d'origine reste crédité pour son travail.
+
+L'application Android s'installe séparément sous le nom **Pokemon DS FR**. Chaque push
+sur `main` déclenche une compilation et la publication d'une release signée avec un
+numéro de version : **[télécharger le dernier APK](../../releases/latest)**.
+Les versions françaises disposent de profils adaptés et de sauvegardes distinctes.
+
+Consultez les [jeux compatibles et les limites des tests](docs/FRENCH-ROMS.md)
+et les [informations sur les releases Android](docs/ANDROID-RELEASES.md).
+Aucune ROM n'est incluse dans ce dépôt ou ses releases.
 
 **Your favourite DS Pokémon games on a PC (Windows and Linux), a Mac, a Steam
 Deck or other handheld PC, an Android phone, an iPhone or iPad, or a modded Nintendo Switch: one screen,

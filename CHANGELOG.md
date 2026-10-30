@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- README: add a French Infos section identifying this fork, crediting upstream and linking to its Android releases.
+
 - French revision 0 ROMs of all seven existing games: regional function profiles,
   translated-game screen detection, widescreen map tables and separate French saves.
 - Platinum: the introduction's touch-only OUI/NON buttons remain visible and can be
