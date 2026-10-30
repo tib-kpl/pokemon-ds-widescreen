@@ -228,6 +228,16 @@ inline std::string Tr(const std::string& s)
     {
         const auto it = st.table.find(s);
         if (it != st.table.end()) return it->second;
+        // (The canvas draws lower case as capitals, so a text in lower case, as a layout's
+        // name, is looked up in capitals too.)
+        std::string up = s;
+        for (char& c : up)
+            if (c >= 'a' && c <= 'z') c = (char)(c - 32);
+        if (up != s)
+        {
+            const auto iu = st.table.find(up);
+            if (iu != st.table.end()) return iu->second;
+        }
     }
     return Fold(s);
 }
