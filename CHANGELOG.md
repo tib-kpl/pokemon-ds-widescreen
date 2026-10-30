@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- README: add a French Infos section identifying this fork, crediting upstream and linking to its Android releases.
+- README: highlight this fork's French ROM support in an English information callout, credit upstream and link to its Android releases.
 
 - French revision 0 ROMs of all seven existing games: regional function profiles,
   translated-game screen detection, widescreen map tables and separate French saves.
