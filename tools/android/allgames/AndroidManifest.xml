@@ -2,7 +2,7 @@
 <!-- The Android all-games app (tools/android/build_all.sh): SDL's activity with the game list's
      needs (GameActivity: the ROM folder, access to files, starting again). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.github.mamesj.pokemonds"
+    package="io.github.tibkpl.pokemonds"
     android:versionCode="1"
     android:versionName="0.1.0"
     android:installLocation="auto">
@@ -20,7 +20,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
 
     <application
-        android:label="Pokemon DS"
+        android:label="Pokemon DS FR"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:allowBackup="true"
@@ -31,8 +31,8 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         <activity
-            android:name=".GameActivity"
-            android:label="Pokemon DS"
+            android:name="io.github.mamesj.pokemonds.GameActivity"
+            android:label="Pokemon DS FR"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleTask"
             android:screenOrientation="sensorLandscape"
@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Restart"
+            android:name="io.github.mamesj.pokemonds.Restart"
             android:process=":restart"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="false" />

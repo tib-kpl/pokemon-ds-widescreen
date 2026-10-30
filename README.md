@@ -1,5 +1,11 @@
 # Pokémon DS Widescreen
 
+> **French ROM support (this fork):** French revision 0 versions of the seven existing games
+> are recognised, with regional display/control profiles and separate French saves.
+> Android releases are numbered and built automatically: [download the APK](../../releases/latest).
+> The app installs separately as **Pokemon DS FR**. See [French compatibility and testing](docs/FRENCH-ROMS.md)
+> and [Android releases](docs/ANDROID-RELEASES.md). No game files are included.
+
 **Your favourite DS Pokémon games on a PC (Windows and Linux), a Mac, a Steam
 Deck or other handheld PC, an Android phone, an iPhone or iPad, or a modded Nintendo Switch: one screen,
 widescreen, 60 fps, up to 4K on a PC and 720p on the Switch.** No more squinting at two tiny stacked DS screens.

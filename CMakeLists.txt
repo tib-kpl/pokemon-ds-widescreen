@@ -97,8 +97,8 @@ set(SSRECOMP_SOURCES
 
 # The app's version (Android: for its check for a newer release; Switch: shown in the
 # Homebrew Menu): the newest one in CHANGELOG.md.
-set(SSR_VERSION "")
-if(ANDROID OR SSR_SWITCH)
+set(SSR_VERSION "" CACHE STRING "Application version (defaults to the changelog)")
+if((ANDROID OR SSR_SWITCH) AND NOT SSR_VERSION)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.md")
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS CHANGELOG.md)
         file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.md" SSR_RELEASES REGEX "^## v[0-9]")
@@ -109,14 +109,16 @@ if(ANDROID OR SSR_SWITCH)
     endif()
 endif()
 
+set(SSR_UPDATE_REPOSITORY "ClickingMaster/ssrecomp" CACHE STRING "GitHub repository used for Android update checks")
+
 if(ANDROID)
     # On Android the game is the library libmain.so that SDL's Java activity loads
     # (tools/android/apk.py packs it into an APK). SDL2 is one built for Android
     # (CMAKE_PREFIX_PATH); no libpng: screenshots are a desktop test aid.
     add_library(ssrecomp SHARED ${SSRECOMP_SOURCES})
     set_target_properties(ssrecomp PROPERTIES OUTPUT_NAME main)
-    target_include_directories(ssrecomp PRIVATE melonDS/src frontend runtime)
-    target_compile_definitions(ssrecomp PRIVATE SSR_NO_PNG SSR_VERSION="${SSR_VERSION}")
+    target_include_directories(ssrecomp PRIVATE melonDS/src frontend runtime "${SSR_GENERATED_DIR}")
+    target_compile_definitions(ssrecomp PRIVATE SSR_NO_PNG SSR_VERSION="${SSR_VERSION}" SSR_UPDATE_REPOSITORY="${SSR_UPDATE_REPOSITORY}")
     target_link_libraries(ssrecomp PRIVATE core SDL2::SDL2 android log)
     # The all-games app (tools/android/build_all.sh): no game inside, the game list from the
     # PC program (frontend/pc_launcher.cpp) with the ROMs in a folder the player chooses.
@@ -132,7 +134,7 @@ elseif(SSR_SWITCH)
     add_executable(ssrecomp ${SSRECOMP_SOURCES} frontend/switch_platform.cpp)
     # main.cpp includes <SDL2/SDL.h>, so the folder above SDL2's own is needed too.
     pkg_get_variable(SDL2_INCLUDEDIR sdl2 includedir)
-    target_include_directories(ssrecomp PRIVATE melonDS/src frontend runtime "${SDL2_INCLUDEDIR}" ${SDL2_STATIC_INCLUDE_DIRS})
+    target_include_directories(ssrecomp PRIVATE melonDS/src frontend runtime "${SSR_GENERATED_DIR}" "${SDL2_INCLUDEDIR}" ${SDL2_STATIC_INCLUDE_DIRS})
     target_compile_options(ssrecomp PRIVATE ${SDL2_STATIC_CFLAGS_OTHER})
     target_compile_definitions(ssrecomp PRIVATE SSR_NO_PNG SSR_VERSION="${SSR_VERSION}")
     target_link_directories(ssrecomp PRIVATE ${SDL2_STATIC_LIBRARY_DIRS})
@@ -258,7 +260,7 @@ elseif(SSR_SWITCH)
         VERBATIM)
 else()
     add_executable(ssrecomp ${SSRECOMP_SOURCES})
-    target_include_directories(ssrecomp PRIVATE melonDS/src frontend runtime ${SDL2_INCLUDE_DIRS})
+    target_include_directories(ssrecomp PRIVATE melonDS/src frontend runtime "${SSR_GENERATED_DIR}" ${SDL2_INCLUDE_DIRS})
     find_package(Threads REQUIRED)
     if(TARGET SDL2::SDL2)
         if(TARGET SDL2::SDL2main)

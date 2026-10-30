@@ -5,6 +5,8 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
+#include <fstream>
+#include <iterator>
 #include <cstdlib>
 #include <cstring>
 #include <map>
@@ -216,7 +218,7 @@ void SetRomFolder(Folders& fo)
 // the emulator, which reads them by file name.
 void ExtractFuncs(const Folders& fo)
 {
-    for (const char* code : { "IREO", "IRDO", "IRBO", "IRAO", "CPUE" })
+    for (const char* code : { "IREO", "IRDO", "IRBO", "IRAO", "CPUE", "IREF", "IRDF", "CPUF", "IRBF", "IRAF" })
     {
         SDL_RWops* rw = SDL_RWFromFile((std::string("funcs/") + code + ".txt").c_str(), "rb");
         if (!rw) continue;
@@ -226,8 +228,12 @@ void ExtractFuncs(const Folders& fo)
         while ((n = SDL_RWread(rw, buf, 1, sizeof buf)) > 0) data.append(buf, n);
         SDL_RWclose(rw);
         const std::string out = fo.funcs + "/" + code + ".txt";
-        struct stat st;
-        if (stat(out.c_str(), &st) == 0 && (size_t)st.st_size == data.size()) continue;
+        // Corrected addresses often keep exactly the same file length.
+        // Compare contents so an updated APK cannot retain a stale profile.
+        std::ifstream previous(out, std::ios::binary);
+        const std::string old((std::istreambuf_iterator<char>(previous)), std::istreambuf_iterator<char>());
+        if (old == data) continue;
+        previous.close();
         if (FILE* f = fopen(out.c_str(), "wb"))
         {
             fwrite(data.data(), 1, data.size(), f);
@@ -242,7 +248,7 @@ void ExtractFuncs(const Folders& fo)
 bool Playable(const Folders& fo, const Launcher::Game& g)
 {
     if (!g.known) return false;
-    if (g.code == "IPGE" || g.code == "IPKE") return rc_num_chunks > 0;
+    if (g.code == "IPGE" || g.code == "IPKE" || g.code == "IPGF" || g.code == "IPKF") return rc_num_chunks > 0;
     return Exists(fo.funcs + "/" + g.code + ".txt");
 }
 
@@ -1143,7 +1149,7 @@ bool Start(int& argc, char**& argv)
 #endif
     // SoulSilver and HeartGold take their layouts from the program's own tables and must not be
     // given a function table (one switches to the Black games' layouts); the others take theirs.
-    if (game.code != "IPGE" && game.code != "IPKE")
+    if (game.code != "IPGE" && game.code != "IPKE" && game.code != "IPGF" && game.code != "IPKF")
     {
         g_args.push_back("--funcs");
         g_args.push_back(fo.funcs + "/" + game.code + ".txt");

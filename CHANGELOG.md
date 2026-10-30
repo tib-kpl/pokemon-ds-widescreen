@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- French revision 0 ROMs of all seven existing games: regional function profiles,
+  translated-game screen detection, widescreen map tables and separate French saves.
+- Platinum: the introduction's touch-only OUI/NON buttons remain visible and can be
+  answered with a controller; detecting their coloured fill works with either language.
+
+- Android builds of this fork publish a numbered, signed APK release on every push to main.
+  The version is also shown by Android, and builds need no game files. The fork installs
+  separately as Pokemon DS FR, preserving the original application.
+
 - **New: iPhone and iPad.** A sideloaded app (`pokemon-ds-wide-ios.ipa`, iOS 14 or newer): the
   same game list and games as on Android, with the ROMs, saves and settings in the Files app
   (On My iPhone > Pokemon DS Widescreen).
