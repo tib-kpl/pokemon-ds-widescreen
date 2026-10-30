@@ -968,7 +968,7 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
                                     asking ? "TAP ANYWHERE: ALLOW ACCESS TO FILES, THEN PICK THE FOLDER" : "NO .NDS FILES IN",
                                     asking ? "WITH YOUR .NDS FILES. SAVES GO IN A SAVES FOLDER INSIDE IT." : fo.roms.c_str(),
                                     "",
-                                    "IT PLAYS POKEMON BLACK / WHITE / BLACK 2 / WHITE 2 (ENGLISH)",
+                                    "IT PLAYS POKEMON BLACK / WHITE / BLACK 2 / WHITE 2,",
                                     "SOULSILVER / HEARTGOLD / PLATINUM (US)" };
             const char* heading = lines[0];
 #elif defined(SSR_IOS)
@@ -976,13 +976,13 @@ int PickGame(Folders& fo, std::vector<Launcher::Game>& games, int selected, bool
                                     "PUT YOUR .NDS FILES IN THE FILES APP: ON MY IPHONE (OR IPAD)",
                                     "> POKEMON DS WIDESCREEN > ROMS. TAP FOLDER AT THE TOP TO GO THERE.",
                                     "THEY SHOW UP HERE BY THEMSELVES.", "",
-                                    "IT PLAYS POKEMON BLACK / WHITE / BLACK 2 / WHITE 2 (ENGLISH)",
+                                    "IT PLAYS POKEMON BLACK / WHITE / BLACK 2 / WHITE 2,",
                                     "SOULSILVER / HEARTGOLD / PLATINUM (US)" };
             const char* heading = lines[0];
 #else
             const char* lines[] = { "NO GAMES FOUND", "",
                                     "PUT YOUR ROMS IN THE ROMS FOLDER BESIDE THIS PROGRAM.", "THEY SHOW UP HERE BY THEMSELVES.", "",
-                                    "IT PLAYS POKEMON BLACK / WHITE / BLACK 2 / WHITE 2 (ENGLISH)",
+                                    "IT PLAYS POKEMON BLACK / WHITE / BLACK 2 / WHITE 2,",
                                     "SOULSILVER / HEARTGOLD / PLATINUM (US)" };
             const char* heading = lines[0];
 #endif
